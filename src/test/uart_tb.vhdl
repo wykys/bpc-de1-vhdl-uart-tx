@@ -10,14 +10,12 @@ end entity uart_tb;
 
 architecture behavioral of uart_tb is
 
-    constant FREQ        : positive := 1E6; -- Hz
+    constant FREQ        : positive := 8E6; -- 8 MHz
     constant PER_DIV_TWO : time     := 1 sec / (FREQ * 2);
     signal clk           : std_logic;
     signal tx            : std_logic;
 
     signal speed_config : speed_config_t := SPEED_SLOW;
-
-
 begin
 
     dut : entity work.uart
@@ -25,13 +23,15 @@ begin
             FREQ => FREQ
         )
         port map(
-            clk_i          => clk,
-            stop_config_i  => STOP_BIT_ONE,
-            speed_config_i => speed_config,
-            tx_o           => tx
+            clk_i           => clk,
+            data_i          => x"55",
+            stop_config_i   => STOP_BIT_ONE,
+            speed_config_i  => speed_config,
+            parity_config_i => PARITY_NONE,
+            tx_o            => tx
         );
 
-    clock: process begin
+    clock : process begin
         clk <= '0';
         wait for PER_DIV_TWO;
         clk <= '1';
