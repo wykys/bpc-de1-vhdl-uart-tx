@@ -10,5 +10,7 @@ package uart_types is
     type speed_config_t is (SPEED_SLOW, SPEED_FAST);
     -- parita žádná, sudá a lichá
     type parity_config_t is (PARITY_NONE, PARITY_EVEN, PARITY_ODD);
+    -- počet datových bitů v rámci
+    type data_bits_config_t is (DATA_BITS_SEVEN, DATA_BITS_EIGHT, DATA_BITS_NINE);
 
 end package;

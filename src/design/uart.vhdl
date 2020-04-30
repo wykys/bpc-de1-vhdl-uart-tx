@@ -10,17 +10,18 @@ entity uart is
         constant FREQ : natural
     );
     port (
-        clk_i           : in std_logic;
-        data_i          : in std_logic_vector(7 downto 0);
-        stop_config_i   : in stop_config_t;
-        speed_config_i  : in speed_config_t;
-        parity_config_i : in parity_config_t;
-        tx_o            : out std_logic
+        clk_i              : in std_logic;
+        data_i             : in std_logic_vector(8 downto 0);
+        stop_config_i      : in stop_config_t;
+        speed_config_i     : in speed_config_t;
+        parity_config_i    : in parity_config_t;
+        data_bits_config_i : in data_bits_config_t;
+        tx_o               : out std_logic
     );
 end uart;
 
 architecture rtl of uart is
-    constant BAUD_SLOW         : natural := 9600;   -- db
+    constant BAUD_SLOW         : natural := 9600;   -- bd
     constant BAUD_FAST         : natural := 115200; -- bd
     constant BAUD_COUNTER_SLOW : natural := (FREQ / BAUD_SLOW) - 1;
     constant BAUD_COUNTER_FAST : natural := (FREQ / BAUD_FAST) - 1;
@@ -37,6 +38,8 @@ architecture rtl of uart is
     signal stop_config   : stop_config_t;
     signal speed_config  : speed_config_t;
     signal parity_config : parity_config_t;
+
+    signal number_of_data_bits : natural range 7 to 9;
 begin
     clk <= clk_i;
 
@@ -59,7 +62,7 @@ begin
                     when DATA =>
                         tx    <= buffer_tx(index);
                         index <= index + 1;
-                        if index = 7 then
+                        if index = (number_of_data_bits - 1) then
                             index <= 0;
                             if parity_config = PARITY_NONE then
                                 opcode <= STOP_BIT;
@@ -69,7 +72,7 @@ begin
                         end if;
 
                     when PARITY =>
-                        for i in buffer_tx'low to buffer_tx'high loop
+                        for i in 0 to number_of_data_bits - 1 loop
                             par := par xor buffer_tx(i);
                         end loop;
 
@@ -103,6 +106,11 @@ begin
                             stop_config   <= stop_config_i;
                             speed_config  <= speed_config_i;
                             parity_config <= parity_config_i;
+                            case data_bits_config_i is
+                                when DATA_BITS_SEVEN => number_of_data_bits <= 7;
+                                when DATA_BITS_EIGHT => number_of_data_bits <= 8;
+                                when others          => number_of_data_bits <= 9;
+                            end case;
                         end if;
                 end case;
             end if;

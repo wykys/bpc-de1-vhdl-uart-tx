@@ -23,12 +23,13 @@ begin
             FREQ => FREQ
         )
         port map(
-            clk_i           => clk,
-            data_i          => x"55",
-            stop_config_i   => STOP_BIT_ONE,
-            speed_config_i  => speed_config,
-            parity_config_i => PARITY_NONE,
-            tx_o            => tx
+            clk_i              => clk,
+            data_i             => '0' & x"55",
+            stop_config_i      => STOP_BIT_ONE,
+            speed_config_i     => speed_config,
+            parity_config_i    => PARITY_EVEN,
+            data_bits_config_i => DATA_BITS_NINE,
+            tx_o               => tx
         );
 
     clock : process begin
